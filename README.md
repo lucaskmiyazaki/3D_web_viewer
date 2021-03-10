@@ -1,6 +1,6 @@
 # 3D Web Viewer
 
-This project was developed using node.
+This project was developed using node express in the backend and Three.js for the 3D rendering.
 
 ### `git clone ___`
 
