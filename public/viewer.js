@@ -1,5 +1,8 @@
 import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
 import { STLLoader } from 'https://unpkg.com/three@0.126.1/examples/jsm/loaders/STLLoader.js';
+import { AMFLoader } from 'https://unpkg.com/three@0.126.1/examples/jsm/loaders/AMFLoader.js';
+import { PLYLoader } from 'https://unpkg.com/three@0.126.1/examples/jsm/loaders/PLYLoader.js';
+import { OBJLoader } from 'https://unpkg.com/three@0.126.1/examples/jsm/loaders/OBJLoader.js';
 import { WEBGL } from 'https://unpkg.com/three@0.126.1/examples/jsm/WebGL.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls';
 
@@ -111,15 +114,82 @@ function animate() {
 // Loader
 function loadModel(filename) {
     const objectMaterial = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
-    var loader = new STLLoader();
+    var loader
+
+    if        (filename.includes(".stl")){
+
+        loader = new STLLoader();
+        loader.load("models/"+filename, function ( geometry ) {
+            geometry.castShadow = true; //default is false
+            geometry.receiveShadow = true; //default
+            var object = new THREE.Mesh( geometry, objectMaterial );
+            scene.add( object );
+            objects.push(object);
+        });
+
+    } else if (filename.includes(".obj")){
+
+        loader = new OBJLoader();
+        loader.load("models/"+filename,
+            // called when resource is loaded
+            function ( object ) {
+        
+                scene.add( object );
+                objects.push(object);
+        
+            },
+            // called when loading is in progresses
+            function ( xhr ) {
+        
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        
+            },
+            // called when loading has errors
+            function ( error ) {
+        
+                console.log( 'An error happened' );
+        
+            }
+        );
+
+    } else if (filename.includes(".ply")){
+        loader = new PLYLoader();
+        loader.load("models/"+filename, function ( geometry ) {
+            geometry.castShadow = true; //default is false
+            geometry.receiveShadow = true; //default
+            var object = new THREE.Mesh( geometry, objectMaterial );
+            scene.add( object );
+            objects.push(object);
+        });
+    } else if (filename.includes(".amf")){
+        loader = new AMFLoader();
+        loader.load("models/"+filename,
+            // called when resource is loaded
+            function ( object ) {
+        
+                scene.add( object );
+                objects.push(object);
+        
+            },
+            // called when loading is in progresses
+            function ( xhr ) {
+        
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        
+            },
+            // called when loading has errors
+            function ( error ) {
+        
+                console.log( 'An error happened' );
+        
+            }
+        );
+    } else {
+        window.alert("format not supported");
+        return;
+    }
     
-    loader.load( "models/"+filename, function ( geometry ) {
-        geometry.castShadow = true; //default is false
-        geometry.receiveShadow = true; //default
-        var object = new THREE.Mesh( geometry, objectMaterial );
-        scene.add( object );
-        objects.push(object);
-    });
+    
 }
 
 // Object Control
