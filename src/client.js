@@ -4,7 +4,7 @@ import { WEBGL } from 'https://unpkg.com/three@0.126.1/examples/jsm/WebGL.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls';
 
 // Global var
-var scene, camera, controls, renderer, light, object;
+var scene, camera, controls, renderer, light, object, table;
 var clock = new THREE.Clock();
 
 init();
@@ -30,34 +30,47 @@ function init() {
 
     // Renderer
     renderer = new THREE.WebGLRenderer();
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.body.appendChild( renderer.domElement );
 
     // Camera
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-    camera.position.z = 50;
+    camera.position.z = 70;
+    camera.position.y = -50;
     controls = new OrbitControls( camera, renderer.domElement );
     
     // Light
-    var ambientLight = new THREE.AmbientLightProbe( 0xffffff, 0.35 )
-    scene.add( ambientLight );
-    var topLightSource = new THREE.PointLight( 0xffffff, 1, 100 );
-    topLightSource.position.set( 0, 50, 0 ); //default; light shining from top
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
+    //var ambientLight = new THREE.AmbientLightProbe( 0xffffff, 0.35 )
+    //scene.add( ambientLight );
+    var topLightSource = new THREE.PointLight( 0xffffff, 1, 200 );
+    topLightSource.position.set( 0, 0, 50 ); //default; light shining from top
     topLightSource.castShadow = true; // default false
     scene.add( topLightSource );
-    var rightLightSource = new THREE.PointLight( 0xffffff, 0.8, 100 );
-    rightLightSource.position.set( 50, -50, 0 ); //default; light shining from top
-    rightLightSource.castShadow = true; // default false
-    scene.add( rightLightSource );
-    var leftLightSource = new THREE.PointLight( 0xffffff, 0.8, 100 );
-    leftLightSource.position.set( -50, -50, 0 ); //default; light shining from top
-    leftLightSource.castShadow = true; // default false
-    scene.add( leftLightSource );
+    //var rightLightSource = new THREE.PointLight( 0xffffff, 0.8, 100 );
+    //rightLightSource.position.set( 50, 0, -50 ); //default; light shining from top
+    //rightLightSource.castShadow = true; // default false
+    //scene.add( rightLightSource );
+    //var leftLightSource = new THREE.PointLight( 0xffffff, 0.8, 100 );
+    //leftLightSource.position.set( -50, 0, -50 ); //default; light shining from top
+    //leftLightSource.castShadow = true; // default false
+    //scene.add( leftLightSource );
 
     // Material
-    const material = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
+    const objectMaterial = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
+    //const objectMaterial = new THREE.MeshLambertMaterial ( { color: 0xff0000 } );
+    //onst objectMaterial = new THREE.MeshStandardMaterial ( { color: 0xff0000 } );
+    //const tableMaterial = new THREE.MeshLambertMaterial( { color: 0xff64b4 } );
+    const tableMaterial = new THREE.MeshPhongMaterial( { color: 0xff64b4 } );
+
+    // Table
+    const cube = new THREE.BoxGeometry(100, 100, 10);
+    cube.castShadow = false; //default is false
+    cube.receiveShadow = true; //default
+    table = new THREE.Mesh( cube, tableMaterial );
+    table.position.z = -40;
+    scene.add( table );
 
     // Geometry
     var loader = new STLLoader();
@@ -65,10 +78,13 @@ function init() {
     loader.load( './HumanHeart.stl', function ( geometry ) {
         geometry.castShadow = true; //default is false
         geometry.receiveShadow = true; //default
-        object = new THREE.Mesh( geometry, material );
+        object = new THREE.Mesh( geometry, objectMaterial );
+        //object.traverse( function( node ) { if ( node instanceof THREE.Mesh ) { node.castShadow = true; } } );
         scene.add( object );
     });
 
+    var helper = new THREE.PointLightHelper( topLightSource, 100 );
+    scene.add( helper );
 };
 
 // Animate
@@ -77,6 +93,12 @@ function animate() {
     requestAnimationFrame( animate );
     controls.update()
     renderer.render( scene, camera );
+
+    if (camera.position.z <= -50){
+        table.visible = false;
+    } else{
+        table.visible = true;
+    }
 
 };
 
