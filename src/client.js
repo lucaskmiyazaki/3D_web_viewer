@@ -4,7 +4,8 @@ import { WEBGL } from 'https://unpkg.com/three@0.126.1/examples/jsm/WebGL.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls';
 
 // Global var
-var scene, camera, controls, renderer, light;
+var scene, camera, controls, renderer, light, object;
+var clock = new THREE.Clock();
 
 init();
 // Compatibility Check
@@ -65,7 +66,8 @@ function init() {
     loader.load( './HumanHeart.stl', function ( geometry ) {
         geometry.castShadow = true; //default is false
         geometry.receiveShadow = true; //default
-        scene.add( new THREE.Mesh( geometry, material ) );
+        object = new THREE.Mesh( geometry, material );
+        scene.add( object );
     });
 
     // Helper
@@ -83,3 +85,62 @@ function animate() {
 
 };
 
+document.addEventListener("keydown", onDocumentKeyDown, false);
+function onDocumentKeyDown(event) {
+    var keyCode = String.fromCharCode(event.which);
+    var rotationIncr = 0.1; 
+    var TranslationIncr = 2; 
+    var scaleIncr = 0.01; 
+	var totalRunTime = clock.getElapsedTime();
+
+    if        (keyCode === "A") {
+        object.rotation.y -= rotationIncr;
+    } else if (keyCode === "D") {
+        object.rotation.y += rotationIncr;
+    } else if (keyCode === "W") {
+        object.rotation.x -= rotationIncr;
+    } else if (keyCode === "S") {
+        object.rotation.x += rotationIncr;
+    } else if (keyCode === "R") {
+        object.rotation.z -= rotationIncr;
+    } else if (keyCode === "F") {
+        object.rotation.z += rotationIncr;
+    } else if (keyCode === "G") {
+        object.position.x -= TranslationIncr;
+    } else if (keyCode === "J") {
+        object.position.x += TranslationIncr;
+    } else if (keyCode === "H") {
+        object.position.y -= TranslationIncr;
+    } else if (keyCode === "Y") {
+        object.position.y += TranslationIncr;
+    } else if (keyCode === "I") {
+        object.position.z -= TranslationIncr;
+    } else if (keyCode === "K") {
+        object.position.z += TranslationIncr;
+    } else if (keyCode === "L") {
+        object.scale.x -= scaleIncr;
+        object.scale.y -= scaleIncr;
+        object.scale.z -= scaleIncr;
+    } else if (keyCode === "O") {
+        object.scale.x += scaleIncr;
+        object.scale.y += scaleIncr;
+        object.scale.z += scaleIncr;
+    }
+    plotTable();
+};
+
+function plotTable(){
+    console.clear();
+    var table = {
+        "position": {"x": object.position.x,
+                     "y": object.position.y,
+                     "z": object.position.z},
+        "rotation": {"x": object.rotation.x,
+                     "y": object.rotation.y,
+                     "z": object.rotation.z},
+        "scale":    {"x": object.scale.x,
+                     "y": object.scale.y,
+                     "z": object.scale.z},
+    };
+    console.table(table); 
+}
