@@ -4,10 +4,10 @@ const port = 3000
 const fs = require('fs');
 const path = require('path');
 
-
+// Export files
 app.get('/', (req, res) => {
     const file = req.url === '/' ? 'index.html' : req.url;
-    const filePath = path.join(__dirname, "src", file);
+    const filePath = path.join(__dirname, "public", file);
 
     fs.readFile(
         filePath,
@@ -18,8 +18,9 @@ app.get('/', (req, res) => {
     );
 })
 
+// Export the names of the model files
 app.get('/models', (req, res) =>{
-    const folderPath = path.join(__dirname, 'src/models');
+    const folderPath = path.join(__dirname, 'public/models');
     fs.readdir(folderPath, function (err, files) {
         //handling error
         if (err) {
@@ -36,7 +37,7 @@ app.get('/models', (req, res) =>{
     });
 })
 
-app.use(express.static('src'))
+app.use(express.static('public'))
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
