@@ -38,25 +38,24 @@ function init() {
     // Camera
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
     camera.position.z = 50;
-    
-    // Controls
     controls = new OrbitControls( camera, renderer.domElement );
     
     // Light
-    //var AmbientLight = new THREE.AmbientLight( 0x404040 ); // soft white light scene.add( light );
-    var ambientLight = new THREE.AmbientLightProbe( 0xffffff, 0.3 )
+    var ambientLight = new THREE.AmbientLightProbe( 0xffffff, 0.35 )
     scene.add( ambientLight );
-    light = new THREE.PointLight( 0xffffff, 1, 100 );
-    light.position.set( 0, 50, 0 ); //default; light shining from top
-    light.castShadow = true; // default false
-    scene.add( light );
+    var topLightSource = new THREE.PointLight( 0xffffff, 1, 100 );
+    topLightSource.position.set( 0, 50, 0 ); //default; light shining from top
+    topLightSource.castShadow = true; // default false
+    scene.add( topLightSource );
+    var rightLightSource = new THREE.PointLight( 0xffffff, 0.8, 100 );
+    rightLightSource.position.set( 50, -50, 0 ); //default; light shining from top
+    rightLightSource.castShadow = true; // default false
+    scene.add( rightLightSource );
+    var leftLightSource = new THREE.PointLight( 0xffffff, 0.8, 100 );
+    leftLightSource.position.set( -50, -50, 0 ); //default; light shining from top
+    leftLightSource.castShadow = true; // default false
+    scene.add( leftLightSource );
 
-    //Set up shadow properties for the light
-    light.shadow.mapSize.width = 512; // default
-    light.shadow.mapSize.height = 512; // default
-    light.shadow.camera.near = 0.5; // default
-    light.shadow.camera.far = 500; // default
-    
     // Material
     const material = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
 
@@ -70,10 +69,6 @@ function init() {
         scene.add( object );
     });
 
-    // Helper
-    const helper = new THREE.CameraHelper( light.shadow.camera );
-    scene.add( helper );
-    
 };
 
 // Animate
@@ -85,6 +80,7 @@ function animate() {
 
 };
 
+// Object Control
 document.addEventListener("keydown", onDocumentKeyDown, false);
 function onDocumentKeyDown(event) {
     var keyCode = String.fromCharCode(event.which);
