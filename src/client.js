@@ -4,7 +4,8 @@ import { WEBGL } from 'https://unpkg.com/three@0.126.1/examples/jsm/WebGL.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls';
 
 // Global var
-var scene, camera, controls, renderer, light, object, table;
+var scene, camera, controls, renderer, light, table;
+var objects = [];
 var clock = new THREE.Clock();
 
 init();
@@ -58,7 +59,6 @@ function init() {
     //scene.add( leftLightSource );
 
     // Material
-    const objectMaterial = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
     //const objectMaterial = new THREE.MeshLambertMaterial ( { color: 0xff0000 } );
     //onst objectMaterial = new THREE.MeshStandardMaterial ( { color: 0xff0000 } );
     //const tableMaterial = new THREE.MeshLambertMaterial( { color: 0xff64b4 } );
@@ -72,16 +72,43 @@ function init() {
     table.position.z = -40;
     scene.add( table );
 
-    // Geometry
-    var loader = new STLLoader();
-    
-    loader.load( './HumanHeart.stl', function ( geometry ) {
-        geometry.castShadow = true; //default is false
-        geometry.receiveShadow = true; //default
-        object = new THREE.Mesh( geometry, objectMaterial );
-        //object.traverse( function( node ) { if ( node instanceof THREE.Mesh ) { node.castShadow = true; } } );
-        scene.add( object );
-    });
+    // Load Objects
+    var request = new XMLHttpRequest();
+    var models;
+    request.open('GET', '/models', false); // false == not async
+    request.send();
+
+    if (request.status >= 200 && request.status < 400) {
+        var resp = request.responseText;
+        models = JSON.parse(resp)["models"];
+        for (var i = 0; i < models.length; i++){
+            var filename = models[i];
+            loadModel(filename);
+        }
+    }
+
+    //request.onload = function() {
+    //    if (request.status >= 200 && request.status < 400) {
+    //        var resp = request.responseText;
+    //        models = JSON.parse(resp)["models"];
+//
+    //        for (var i = 0; i < models.length; i++){
+    //            var filename = models[i];
+    //            objects.push(loadModel(filename));
+    //        }
+    //    }
+    //};      
+    //request.send();
+
+    //var loader = new STLLoader();
+    //
+    //loader.load( './HumanHeart.stl', function ( geometry ) {
+    //    geometry.castShadow = true; //default is false
+    //    geometry.receiveShadow = true; //default
+    //    object = new THREE.Mesh( geometry, objectMaterial );
+    //    //object.traverse( function( node ) { if ( node instanceof THREE.Mesh ) { node.castShadow = true; } } );
+    //    scene.add( object );
+    //});
 
     var helper = new THREE.PointLightHelper( topLightSource, 100 );
     scene.add( helper );
@@ -102,6 +129,21 @@ function animate() {
 
 };
 
+// Loader
+function loadModel(filename) {
+    const objectMaterial = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
+    var loader = new STLLoader();
+    
+    loader.load( filename, function ( geometry ) {
+        geometry.castShadow = true; //default is false
+        geometry.receiveShadow = true; //default
+        var object = new THREE.Mesh( geometry, objectMaterial );
+        scene.add( object );
+        console.log(object);
+        objects.push(object);
+    });
+}
+
 // Object Control
 document.addEventListener("keydown", onDocumentKeyDown, false);
 function onDocumentKeyDown(event) {
@@ -110,6 +152,8 @@ function onDocumentKeyDown(event) {
     var TranslationIncr = 2; 
     var scaleIncr = 0.01; 
 	var totalRunTime = clock.getElapsedTime();
+    console.log(objects);
+    var object = objects[0];
 
     if        (keyCode === "A") {
         object.rotation.y -= rotationIncr;
@@ -148,7 +192,9 @@ function onDocumentKeyDown(event) {
 };
 
 function plotTable(){
-    console.clear();
+    //console.clear();
+    var object = objects[0];
+
     var table = {
         "position": {"x": object.position.x,
                      "y": object.position.y,
