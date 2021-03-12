@@ -40,8 +40,8 @@ function init() {
 
     // Camera
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-    camera.position.z = 70;
-    camera.position.y = -50;
+    camera.position.z = 40;
+    camera.position.y = -110;
     controls = new OrbitControls( camera, renderer.domElement );
     
     // Light
@@ -75,6 +75,14 @@ function init() {
     table = new THREE.Mesh( cube, tableMaterial );
     table.position.z = -40;
     scene.add( table );
+    const wiretable  = new THREE.WireframeGeometry( cube );
+    const line = new THREE.Line( wiretable );
+    line.material.depthTest = true;
+    line.material.opacity = 0.4;
+    line.material.transparent = true;
+    line.position.z = -40;
+    scene.add(line);
+
 
     // Objects
     var request = new XMLHttpRequest();
