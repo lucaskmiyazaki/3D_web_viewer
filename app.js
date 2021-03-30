@@ -4,6 +4,9 @@ const port = 3000
 const fs = require('fs');
 const path = require('path');
 const childProcess = require('child_process');
+const { request } = require('express');
+
+app.use(express.bodyParser());
 
 // Export files
 app.get('/', (req, res) => {
@@ -39,8 +42,15 @@ app.get('/models', (req, res) =>{
 })
 
 // Slicer
-app.get('/slic3r', (req, res) => {
-    childProcess.exec('slic3r public/models/HumanHeart.stl -o public/gcode',
+app.post('/slic3r', (req, res) => {
+    var object = req.body; 
+    //options = " --rotate-x " + object.rotation.x + 
+      //        " --rotate-y " + object.rotation.y + 
+    var options = " --scale "  + object.scale.z + 
+                  " --rotate " + object.rotation.z * 180 / Math.PI; 
+    var cmd = 'slic3r public/models/HumanHeart.stl -o public/gcode' + options;
+    console.log(cmd);
+    childProcess.exec(cmd,
         function (error, stdout, stderr) {
 
             if (stderr){
@@ -59,10 +69,10 @@ app.get('/slic3r', (req, res) => {
     );
 })
 
-app.use(express.static('public'))
+app.use(express.static('public'));
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
-})
+});
 
 

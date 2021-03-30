@@ -131,7 +131,9 @@ function loadGcode(filename, object) {
     if (filename.includes("gcode")){
         const loader = new GCodeLoader();
         loader.load( filename, function ( gcodeRender ) {
-            gcodeRender.position.set( - 100, - 20 + object.position.y , 100 );
+            gcodeRender.position.set( - 100 + object.position.x, 
+                                      - 20  + object.position.y ,
+                                        100 + object.position.z);
             scene.add( gcodeRender );
             object.visible = false;
         })
@@ -269,15 +271,25 @@ function onDocumentKeyDown(event) {
         var models;
         request.onreadystatechange = function() {
             if (this.status >= 200 && this.status < 400){
-                console.log("fatiou");
                 loadGcode("gcode/HumanHeart.gcode", object);
-                console.log("apareceu");
             } else{
                 console.log(this.error);
             }
         }
-        request.open('GET', '/slic3r', true); // false == not async
-        request.send();
+        request.open('POST', '/slic3r', true); // false == not async
+        request.setRequestHeader("Content-Type", "application/json");
+        var data = JSON.stringify({ "position": {"x": object.position.x,
+                                                 "y": object.position.y,
+                                                 "z": object.position.z},
+                                    "rotation": {"x": object.rotation.x - rotationOffsetX,
+                                                 "y": object.rotation.y,
+                                                 "z": object.rotation.z},
+                                    "scale":    {"x": object.scale.x,
+                                                 "y": object.scale.y,
+                                                 "z": object.scale.z},
+                                 });
+        console.log(data);
+        request.send(data);
 
     } else if (keyCode >= "0" && keyCode <= "9") {
         currentObject = parseInt(keyCode);
@@ -289,7 +301,7 @@ function onDocumentKeyDown(event) {
 
 // Console Status
 function plotTable(){
-    console.clear();
+    //console.clear();
     var object = objects[currentObject];
 
     var table = {
