@@ -3,6 +3,7 @@ const app = express()
 const port = 3000
 const fs = require('fs');
 const path = require('path');
+const childProcess = require('child_process');
 
 // Export files
 app.get('/', (req, res) => {
@@ -35,6 +36,27 @@ app.get('/models', (req, res) =>{
         console.log(list);
         res.end(JSON.stringify(list));
     });
+})
+
+// Slicer
+app.get('/slic3r', (req, res) => {
+    childProcess.exec('slic3r public/models/HumanHeart.stl -o public/gcode',
+        function (error, stdout, stderr) {
+
+            if (stderr){
+                console.log({ message: stderr });
+            }
+
+            if (stdout){
+                console.log(stdout);
+                res.end();
+            }
+
+            if (error){
+                console.log(error);
+            }
+        }
+    );
 })
 
 app.use(express.static('public'))

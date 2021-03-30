@@ -3,6 +3,7 @@ import { STLLoader } from 'https://unpkg.com/three@0.126.1/examples/jsm/loaders/
 import { AMFLoader } from 'https://unpkg.com/three@0.126.1/examples/jsm/loaders/AMFLoader.js';
 import { PLYLoader } from 'https://unpkg.com/three@0.126.1/examples/jsm/loaders/PLYLoader.js';
 import { OBJLoader } from 'https://unpkg.com/three@0.126.1/examples/jsm/loaders/OBJLoader.js';
+import { GCodeLoader } from 'https://unpkg.com/three@0.126.1/examples/jsm/loaders/GCodeLoader.js';
 import { WEBGL } from 'https://unpkg.com/three@0.126.1/examples/jsm/WebGL.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls';
 
@@ -11,6 +12,7 @@ var scene, camera, controls, renderer, light, table;
 var objects = [];
 var currentObject = 0;
 var clock = new THREE.Clock();
+const rotationOffsetX = - Math.PI / 2;
 
 init();
 // Compatibility Check
@@ -40,8 +42,8 @@ function init() {
 
     // Camera
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-    camera.position.z = 40;
-    camera.position.y = -110;
+    camera.position.z = 80;
+    camera.position.y = 80;
     controls = new OrbitControls( camera, renderer.domElement );
     
     // Light
@@ -49,16 +51,16 @@ function init() {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
     var ambientLight = new THREE.AmbientLightProbe( 0xffffff, 0.2 )
     scene.add( ambientLight );
-    var topLightSource = new THREE.PointLight( 0xffffff, 1, 200 );
-    topLightSource.position.set( 0, 0, 50 ); //default; light shining from top
+    var topLightSource = new THREE.PointLight( 0xffffff, 0.9, 2000 );
+    topLightSource.position.set( 0, 500, 0 ); //default; light shining from top
     topLightSource.castShadow = true; // default false
     scene.add( topLightSource );
     var rightLightSource = new THREE.PointLight( 0xffffff, 0.6, 100 );
-    rightLightSource.position.set( 50, 0, -50 ); //default; light shining from top
+    rightLightSource.position.set( 50, -10, 0 ); //default; light shining from top
     rightLightSource.castShadow = true; // default false
     scene.add( rightLightSource );
     var leftLightSource = new THREE.PointLight( 0xffffff, 0.6, 100 );
-    leftLightSource.position.set( -50, 0, -50 ); //default; light shining from top
+    leftLightSource.position.set( -50, -10, 0 ); //default; light shining from top
     leftLightSource.castShadow = true; // default false
     scene.add( leftLightSource );
 
@@ -69,18 +71,18 @@ function init() {
     const tableMaterial = new THREE.MeshPhongMaterial( { color: 0xff64b4 } );
 
     // Table
-    const cube = new THREE.BoxGeometry(100, 100, 10);
+    const cube = new THREE.BoxGeometry(100, 10, 100);
     cube.castShadow = false; //default is false
     cube.receiveShadow = true; //default
     table = new THREE.Mesh( cube, tableMaterial );
-    table.position.z = -40;
+    table.position.z = -5;
     scene.add( table );
     const wiretable  = new THREE.WireframeGeometry( cube );
     const line = new THREE.Line( wiretable );
     line.material.depthTest = true;
     line.material.opacity = 0.4;
     line.material.transparent = true;
-    line.position.z = -40;
+    line.position.z = -5;
     scene.add(line);
 
 
@@ -111,7 +113,7 @@ function animate() {
     controls.update()
     renderer.render( scene, camera );
 
-    if (camera.position.z <= -50){
+    if (camera.position.y <= -10){
         table.visible = false;
     } else{
         table.visible = true;
@@ -120,6 +122,34 @@ function animate() {
 };
 
 // Loader
+function loadGcode(filename, object) {
+    const box = new THREE.Box3();
+    object.geometry.computeBoundingBox();
+    box.copy( object.geometry.boundingBox ).applyMatrix4( object.matrixWorld );
+    var positionOffsetY = (object.position.y - box.min.y);
+
+    if (filename.includes("gcode")){
+        const loader = new GCodeLoader();
+        loader.load( filename, function ( gcodeRender ) {
+            gcodeRender.position.set( - 100, - 20 + object.position.y , 100 );
+            scene.add( gcodeRender );
+            object.visible = false;
+        })
+    }
+}
+
+function loadObject(object) {
+    scene.add( object );
+    objects.push(object); 
+
+    const box = new THREE.Box3();
+    object.geometry.computeBoundingBox();
+    box.copy( object.geometry.boundingBox ).applyMatrix4( object.matrixWorld );
+    var positionOffsetY = (object.position.y - box.min.y);
+    object.position.y += positionOffsetY;
+    object.rotation.x = rotationOffsetX;
+}
+
 function loadModel(filename) {
     const objectMaterial = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
     var loader
@@ -131,8 +161,7 @@ function loadModel(filename) {
             geometry.castShadow = true; //default is false
             geometry.receiveShadow = true; //default
             var object = new THREE.Mesh( geometry, objectMaterial );
-            scene.add( object );
-            objects.push(object);
+            loadObject(object);
         });
 
     } else if (filename.includes(".obj")){
@@ -141,10 +170,7 @@ function loadModel(filename) {
         loader.load("models/"+filename,
             // called when resource is loaded
             function ( object ) {
-        
-                scene.add( object );
-                objects.push(object);
-        
+                loadObject(object);
             },
             // called when loading is in progresses
             function ( xhr ) {
@@ -166,18 +192,14 @@ function loadModel(filename) {
             geometry.castShadow = true; //default is false
             geometry.receiveShadow = true; //default
             var object = new THREE.Mesh( geometry, objectMaterial );
-            scene.add( object );
-            objects.push(object);
+            loadObject(object);
         });
     } else if (filename.includes(".amf")){
         loader = new AMFLoader();
         loader.load("models/"+filename,
             // called when resource is loaded
             function ( object ) {
-        
-                scene.add( object );
-                objects.push(object);
-        
+                loadObject(object);
             },
             // called when loading is in progresses
             function ( xhr ) {
@@ -242,9 +264,25 @@ function onDocumentKeyDown(event) {
         object.scale.x += scaleIncr;
         object.scale.y += scaleIncr;
         object.scale.z += scaleIncr;
-    }
-    else if (keyCode >= "0" && keyCode <= "9") {
+    } else if (keyCode === "M") {
+        var request = new XMLHttpRequest();
+        var models;
+        request.onreadystatechange = function() {
+            if (this.status >= 200 && this.status < 400){
+                console.log("fatiou");
+                loadGcode("gcode/HumanHeart.gcode", object);
+                console.log("apareceu");
+            } else{
+                console.log(this.error);
+            }
+        }
+        request.open('GET', '/slic3r', true); // false == not async
+        request.send();
+
+    } else if (keyCode >= "0" && keyCode <= "9") {
         currentObject = parseInt(keyCode);
+    } else {
+        return;
     }
     plotTable();
 };
@@ -258,7 +296,7 @@ function plotTable(){
         "position": {"x": object.position.x,
                      "y": object.position.y,
                      "z": object.position.z},
-        "rotation": {"x": object.rotation.x,
+        "rotation": {"x": object.rotation.x - rotationOffsetX,
                      "y": object.rotation.y,
                      "z": object.rotation.z},
         "scale":    {"x": object.scale.x,
