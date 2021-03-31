@@ -4,22 +4,72 @@
 	<title>three.js tutorial - HelloCube</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<style>
-		body 
-		{
-			font-family: Monospace;
-			font-weight: bold;
-			background-color: #ccccff;
-			margin: 5px;
-			overflow: hidden;
-		}
-	</style>
+
+	<link
+	rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css"
+	/>
+	<link rel="stylesheet" href="styles.css" />
+
 </head>
 <body>
 
-<div id="message"></div>
-<script type="module" src="./viewer.js"></script>
+	<button class="sidebar-toggle">
+		<i class="fas fa-bars"></i>
+	</button>
+	<aside class="sidebar">
 
+		<div class="sidebar-header">
+		  	<img src="images/logo.png" class="logo" alt="">
+		  	<button class="close-btn">
+				<i class="fas fa-times"></i>
+		  	</button>
+		</div>
+
+		<ul class="select-icons">
+		  	<li>
+				<button class="icon-btn" id="object-btn">
+					<img src="images/chromatic.png" class="logo" id="object" alt="">
+				</button>
+		  	</li>
+		  	<li>
+				<button class="icon-btn" id="slicer-btn">
+					<img src="images/layers.png" class="logo" id="slicer" alt="">
+				</button>
+		  	</li>
+		  	<li>
+				<button class="icon-btn" id="control-btn">
+					<img src="images/sketching.png" class="logo" id="control" alt="">
+				</button>
+		  	</li>
+		  	<li>
+				<button class="icon-btn" id="print-btn">
+					<img src="images/3d-printer.png" class="logo" id="print" alt="">
+				</button>
+		  	</li>
+		</ul>
+		
+		<ul class="main-panel">
+			<ul id="object-panel">
+				<h1>Hello world</h1>
+			</ul>
+	
+			<ul id="slicer-panel">
+				<h1>slice</h1>
+			</ul>
+	
+			<ul id="control-panel">
+				<h1>control</h1>
+			</ul>
+	
+			<ul id="print-panel">
+				<h1>print</h1>
+			</ul>	
+		</ul>
+
+	</aside>
+
+	<script type="module" src="./viewer.js"></script>
 
 </body>
 </html>

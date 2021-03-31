@@ -8,11 +8,64 @@ import { WEBGL } from 'https://unpkg.com/three@0.126.1/examples/jsm/WebGL.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls';
 
 // Global var
-var scene, camera, controls, renderer, light, table;
+var scene, camera, controls, renderer, table;
 var objects = [];
 var currentObject = 0;
-var clock = new THREE.Clock();
 const rotationOffsetX = - Math.PI / 2;
+
+// --- SIDEBAR ------------------------
+const toggleBtn = document.querySelector('.sidebar-toggle');
+const closeBtn  = document.querySelector('.close-btn');
+const sidebar   = document.querySelector('.sidebar');
+//const iconBtn   = document.querySelector('.icon-btn');
+
+toggleBtn.addEventListener('click', function(){
+    //using toggle
+    sidebar.classList.toggle('show-sidebar');
+});
+
+closeBtn.addEventListener('click', function(){
+    sidebar.classList.remove('show-sidebar');
+});
+
+const objectBtn  = document.getElementById('object-btn');
+const slicerBtn  = document.getElementById('slicer-btn');
+const controlBtn = document.getElementById('control-btn');
+const printBtn   = document.getElementById('print-btn');
+
+const mainPanel   = document.getElementsByClassName('main-panel')[0];
+    
+for(var child=mainPanel.firstChild; child!==null; child=child.nextSibling) {
+    if(child.tagName === 'UL'){
+        child.style.visibility = "hidden";
+    }
+}
+
+function iconClick(event) {
+    const id = event.target.id;
+
+    const mainPanel   = document.getElementsByClassName('main-panel')[0];
+    const currentPanel = document.getElementById(id+"-panel");
+
+    if(typeof(currentPanel) === 'object' && currentPanel !== null){
+        for(var child=mainPanel.firstChild; child!==null; child=child.nextSibling) {
+            if(child.tagName === 'UL'){
+                child.style.visibility = "hidden";
+            }
+        }
+    
+        mainPanel.insertBefore(currentPanel, mainPanel.firstChild);
+        currentPanel.style.visibility = "visible"; 
+    }    
+}
+
+objectBtn.addEventListener('click',  iconClick);
+slicerBtn.addEventListener('click',  iconClick);
+controlBtn.addEventListener('click', iconClick); 
+printBtn.addEventListener('click',   iconClick);
+
+// --- SIDEBAR ------------------------
+
 
 init();
 // Compatibility Check
@@ -28,17 +81,29 @@ if ( WEBGL.isWebGLAvailable() ) {
 
 }
 
+window.addEventListener( 'resize', onWindowResize, false );
+
+function onWindowResize(){
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize( window.innerWidth, window.innerHeight );
+
+}
+
+
 // Init
 function init() {
-
-    // Scene
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color( 'skyblue' );
 
     // Renderer
     renderer = new THREE.WebGLRenderer();
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.body.appendChild( renderer.domElement );
+
+    // Scene
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color( 'skyblue' );
 
     // Camera
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -231,7 +296,6 @@ function onDocumentKeyDown(event) {
     var rotationIncr = 0.1; 
     var TranslationIncr = 2; 
     var scaleIncr = 0.01; 
-	var totalRunTime = clock.getElapsedTime();
     var object = objects[currentObject];
 
     if        (keyCode === "A") {
