@@ -163,6 +163,7 @@ Sidebar
     justify-self: center;
     display: flex;
     padding-bottom: 2rem;
+    background-color: red;
 }
 .select-icons button {
     font-size: 1.5rem;
@@ -187,7 +188,7 @@ Sidebar
     height: 100%;
     background: var(--clr-white);
     display: grid;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: 0.8fr 1fr 6fr;
     row-gap: 1rem;
     box-shadow: var(--clr-red-dark);
     transition: var(--transition);
@@ -196,6 +197,18 @@ Sidebar
 .show-sidebar {
     transform: translate(0);
 }
+
+.main-panel {
+    background-color: yellow;
+}
+
+.panel-item{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+}
+
 @media screen and (min-width: 676px) {
     .sidebar {
         width: 400px;
